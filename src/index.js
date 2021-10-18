@@ -1,6 +1,9 @@
 const { app, BrowserWindow } = require("electron");
 const path = require("path");
 
+// Discord
+const RPC = require("discord-rpc");
+
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
   // eslint-disable-line global-require
@@ -48,3 +51,37 @@ app.on("activate", () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
+
+const rpc = new RPC.Client({
+  transport: "ipc",
+});
+
+const activity = {
+  details: "please leave me alone",
+  state: `Stop watching me`,
+  largeImageKey: "gaming",
+  largeImageText: "me",
+  smallImageKey: "spookyween",
+  smallImageText: "spooks",
+  buttons: [
+    {
+      label: "Spooky",
+      url: "https://github.com/FlynnMay",
+    },
+    {
+      label: "Listen Along",
+      url: "https://www.youtube.com/watch?v=B-LiP1-x65E",
+    },
+  ],
+  startTimestamp: Date.now(),
+  instance: true,
+};
+
+rpc.on("ready", () => {
+  rpc.setActivity(activity);
+  console.log("RPC active");
+});
+
+rpc.login({
+  clientId: "898065817265123348",
+});
