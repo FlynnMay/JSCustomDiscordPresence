@@ -3,12 +3,14 @@ const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
 const ipc = electron.ipcMain;
 const path = require("path");
-var config = require("./data.json");
-const fs = require("fs");
+
+const storage = require("electron-json-storage");
 
 // Discord
 const RPC = require("discord-rpc");
 const { Console } = require("console");
+
+const dataPath = storage.getDataPath();
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -16,29 +18,61 @@ if (require("electron-squirrel-startup")) {
   app.quit();
 }
 
+function RPCLogin() {
+  storage.has("data", function (error, hasKey) {
+    if (error) throw error;
+
+    if (!hasKey) {
+      storage.set("data", { clientId: "ID" });
+
+      dialog.showErrorBox(
+        `Client ID not found`,
+        `To use this app go to: ${dataPath}\\data.json and fill in your discord application client ID`
+      );
+    }
+  });
+
+  let id = "";
+  storage.get("data", function (error, data) {
+    if (error) throw error;
+
+    if (data.clientId == "ID") {
+      dialog.showErrorBox(
+        `Client ID not found`,
+        `To use this app go to: ${dataPath}\\data.json and fill in your discord application client ID`
+      );
+    }
+    rpc.login({
+      clientId: data.clientId,
+    });
+  });
+}
+
 const createWindow = () => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
+    // autoHideMenuBar: true,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
+      // devTools: false,
     },
   });
 
   // and load the index.html of the app.
   // mainWindow.loadFile(path.join(__dirname, "index.html"));
   mainWindow.loadURL("file://" + __dirname + "/index.html");
-
-  // Open the DevTools.
-  mainWindow.webContents.openDevTools();
 };
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on("ready", createWindow);
+app.on("ready", function () {
+  createWindow();
+  RPCLogin();
+});
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
@@ -68,14 +102,6 @@ const rpc = new RPC.Client({
   transport: "ipc",
 });
 
-let details = "";
-let state = "";
-let largeImageKey = "";
-let largeImageText = "";
-let smallImageKey = "";
-let smallImageText = "";
-let showElapsedTime = true;
-
 const activity = {
   details: "please leave me alone...",
   state: `Stop watching me`,
@@ -102,18 +128,10 @@ rpc.on("ready", () => {
   console.log("RPC active");
 });
 
-rpc.login({
-  clientId: config.clientId,
-});
-
 // ==========================
 // HTML integration
 // ==========================
-
-const dialog = electron.dialog;
-
 ipc.on("pulse-check", function (event, args) {
-  // dialog.showErrorBox(`${arg}`, "demo of an error message");
   rpc.setActivity();
   let act = {};
   act.details = args[0];
@@ -122,8 +140,9 @@ ipc.on("pulse-check", function (event, args) {
   act.largeImageText = args[3];
   act.smallImageKey = args[4];
   act.smallImageText = args[5];
-  act.buttons = [];
-  for (let index = 0; index < parseInt(args[6]); index++) {
+  let count = parseInt(args[6]);
+  if (count > 0) act.buttons = [];
+  for (let index = 0; index < count; index++) {
     act.buttons[index] = {
       label: args[7 + index * 2],
       url: args[8 + index * 2],
