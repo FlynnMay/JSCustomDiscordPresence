@@ -1,5 +1,10 @@
-const { app, BrowserWindow } = require("electron");
+const electron = require("electron");
+const app = electron.app;
+const BrowserWindow = electron.BrowserWindow;
+const ipc = electron.ipcMain;
 const path = require("path");
+var config = require("./data.json");
+const fs = require("fs");
 
 // Discord
 const RPC = require("discord-rpc");
@@ -17,11 +22,13 @@ const createWindow = () => {
     height: 600,
     webPreferences: {
       nodeIntegration: true,
+      contextIsolation: false,
     },
   });
 
   // and load the index.html of the app.
-  mainWindow.loadFile(path.join(__dirname, "index.html"));
+  // mainWindow.loadFile(path.join(__dirname, "index.html"));
+  mainWindow.loadURL("file://" + __dirname + "/index.html");
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
@@ -52,12 +59,24 @@ app.on("activate", () => {
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
 
+// ==========================
+// Discord Setup
+// ==========================
+
 const rpc = new RPC.Client({
   transport: "ipc",
 });
 
+let details = "";
+let state = "";
+let largeImageKey = "";
+let largeImageText = "";
+let smallImageKey = "";
+let smallImageText = "";
+let showElapsedTime = true;
+
 const activity = {
-  details: "please leave me alone",
+  details: "please leave me alone...",
   state: `Stop watching me`,
   largeImageKey: "gaming",
   largeImageText: "me",
@@ -83,5 +102,23 @@ rpc.on("ready", () => {
 });
 
 rpc.login({
-  clientId: "898065817265123348",
+  clientId: config.clientId,
+});
+
+// ==========================
+// HTML integration
+// ==========================
+
+const dialog = electron.dialog;
+
+ipc.on("pulse-check", function (event, args) {
+  // dialog.showErrorBox(`${arg}`, "demo of an error message");
+  activity.details = args[0];
+  activity.state = args[1];
+  activity.largeImageKey = args[2];
+  activity.largeImageText = args[3];
+  activity.smallImageKey = args[4];
+  activity.smallImageText = args[5];
+
+  rpc.setActivity(activity);
 });
