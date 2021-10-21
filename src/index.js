@@ -8,6 +8,7 @@ const fs = require("fs");
 
 // Discord
 const RPC = require("discord-rpc");
+const { Console } = require("console");
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -113,12 +114,20 @@ const dialog = electron.dialog;
 
 ipc.on("pulse-check", function (event, args) {
   // dialog.showErrorBox(`${arg}`, "demo of an error message");
-  activity.details = args[0];
-  activity.state = args[1];
-  activity.largeImageKey = args[2];
-  activity.largeImageText = args[3];
-  activity.smallImageKey = args[4];
-  activity.smallImageText = args[5];
-
-  rpc.setActivity(activity);
+  rpc.setActivity();
+  let act = {};
+  act.details = args[0];
+  act.state = args[1];
+  act.largeImageKey = args[2];
+  act.largeImageText = args[3];
+  act.smallImageKey = args[4];
+  act.smallImageText = args[5];
+  act.buttons = [];
+  for (let index = 0; index < parseInt(args[6]); index++) {
+    act.buttons[index] = {
+      label: args[7 + index * 2],
+      url: args[8 + index * 2],
+    };
+  }
+  rpc.setActivity(act);
 });
