@@ -18,3 +18,4 @@
 1. Navigate to your [discord developers application](https://discord.com/developers/applications)
 1. Click Rich presence, Art Assets
 1. Click Add images and upload image files 
+##### _After uploading images, they may take 10 minutes to 1 hour to appear_
