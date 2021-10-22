@@ -2,7 +2,9 @@
 
 ### Very basic discord presence customiser.<br><br>
 
->**Set Up:**
+### Set Up:
+
+***
 
 1. Create a [discord developers application](https://discord.com/developers/applications)
 1. run the installer
@@ -13,9 +15,12 @@
 1. navigate to the folder _rpc-customiser\storage_
 1. open the data.json file and change "ID" to your discord application ID
 <br><br>
-> **To add custom images:**<br>
+
+### To add custom images:
+
+***
 
 1. Navigate to your [discord developers application](https://discord.com/developers/applications)
 1. Click Rich presence, Art Assets
 1. Click Add images and upload image files 
-##### _After uploading images, they may take 10 minutes to 1 hour to appear_
+> _After uploading images, they may take 10 minutes to 1 hour to appear_
