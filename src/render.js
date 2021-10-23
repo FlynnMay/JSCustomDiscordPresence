@@ -16,6 +16,8 @@ let button1Title = document.getElementById("button1Title");
 let button2Title = document.getElementById("button2Title");
 let button1URLTitle = document.getElementById("button1URLTitle");
 let button2URLTitle = document.getElementById("button2URLTitle");
+let savebutton = document.getElementById("save");
+let loadbutton = document.getElementById("load");
 
 function updateButtonCount() {
   let count = parseInt(buttonCount.value);
@@ -52,4 +54,38 @@ submit.addEventListener("click", function () {
     button2URL.value, // 10
   ];
   ipc.send("pulse-check", data);
+});
+
+savebutton.addEventListener("click", function () {
+  let data = [
+    detBox.value, // 0
+    stateBox.value, // 1
+    largeIconBox.value, // 2
+    largeTextBox.value, // 3
+    smallIconBox.value, // 4
+    smallTextBox.value, // 5
+    buttonCount.value, // 6
+    button1Text.value, // 7
+    button1URL.value, // 8
+    button2Text.value, // 9
+    button2URL.value, // 10
+  ];
+  ipc.send("save", data);
+});
+
+loadbutton.addEventListener("click", function () {
+  // let data = [
+  //   detBox.value, // 0
+  //   stateBox.value, // 1
+  //   largeIconBox.value, // 2
+  //   largeTextBox.value, // 3
+  //   smallIconBox.value, // 4
+  //   smallTextBox.value, // 5
+  //   buttonCount.value, // 6
+  //   button1Text.value, // 7
+  //   button1URL.value, // 8
+  //   button2Text.value, // 9
+  //   button2URL.value, // 10
+  // ];
+  ipc.send("load");
 });

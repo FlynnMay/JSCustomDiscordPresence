@@ -131,6 +131,7 @@ rpc.on("ready", () => {
 // ==========================
 // HTML integration
 // ==========================
+
 ipc.on("pulse-check", function (event, args) {
   rpc.setActivity();
   let act = {};
@@ -150,3 +151,45 @@ ipc.on("pulse-check", function (event, args) {
   }
   rpc.setActivity(act);
 });
+
+ipc.on("save", function (event, args) {
+  let _buttons;
+
+  let count = parseInt(args[6]);
+  if (count > 0) _buttons = [];
+  for (let index = 0; index < count; index++) {
+    _buttons[index] = {
+      label: args[7 + index * 2],
+      url: args[8 + index * 2],
+    };
+  }
+
+  let saveInfo = {
+    details: args[0],
+    state: args[1],
+    largeImageKey: args[2],
+    largeImageText: args[3],
+    smallImageKey: args[4],
+    smallImageText: args[5],
+    buttons: _buttons,
+  };
+  storage.set("saves", saveInfo);
+});
+
+ipc.on("load", function (event) {
+  storage.get("saves", function (error, data) {
+    if (error) throw error;
+
+    rpc.setActivity(data);
+  });
+});
+
+class SaveInfo {
+  details;
+  state;
+  largeImageKey;
+  largeImageText;
+  smallImageKey;
+  smallImageText;
+  buttons;
+}
